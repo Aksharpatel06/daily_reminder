@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_application_1/utils/custom_color.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/database_service.dart';
 import '../models/user_model.dart';
 
@@ -18,7 +19,7 @@ class _MembersScreenState extends State<MembersScreen> {
   @override
   void initState() {
     super.initState();
-    _loadMembers();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadMembers());
   }
 
   Future<void> _loadMembers() async {
@@ -32,75 +33,118 @@ class _MembersScreenState extends State<MembersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE),
-      appBar: AppBar(
-        title: const Text(
-          'All Members',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
-          : _members.isEmpty
-          ? Center(
+      backgroundColor: CustomColor.primaryColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.people_outline, size: 64, color: Colors.grey[300]),
-                  const SizedBox(height: 16),
-                  Text("No members found", style: TextStyle(color: Colors.grey[400])),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: CustomColor.subTextColor.withValues(alpha: 0.1),
+                            border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(Icons.arrow_back, color: CustomColor.textColor, size: 32),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Members',
+                              style: GoogleFonts.afacad(fontSize: 24, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                            ),
+                            Text('Read daily and get’s Swami’s rajipo', style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 16)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _members.length,
-              itemBuilder: (context, index) {
-                final member = _members[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2))],
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    leading: CircleAvatar(
-                      radius: 26,
-                      backgroundColor: member.isAdmin ? const Color(0xFFFFF7ED) : const Color(0xFFEFF6FF),
-                      child: Text(
-                        member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
-                        style: TextStyle(color: member.isAdmin ? Colors.orange : colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                    ),
-                    title: Text(member.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    subtitle: Text(member.area, style: TextStyle(color: Colors.grey[500])),
-                    trailing: member.isAdmin
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
-                            ),
-                            child: const Text(
-                              "Admin",
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange),
-                            ),
-                          )
-                        : null,
-                  ),
-                ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.1, end: 0);
-              },
             ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: CustomColor.backgroundColor,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                ),
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator(color: CustomColor.textColor))
+                    : _members.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.people_outline, size: 64, color: CustomColor.subTextColor),
+                            const SizedBox(height: 16),
+                            Text("No members found", style: TextStyle(color: CustomColor.subTextColor)),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(24),
+                        itemCount: _members.length,
+                        itemBuilder: (context, index) {
+                          final member = _members[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: CustomColor.backgroundColor,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withValues(alpha: 0.3), spreadRadius: 5, blurRadius: 10, offset: const Offset(0, 2)),
+                              ],
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              leading: CircleAvatar(
+                                radius: 26,
+                                backgroundColor: CustomColor.textColor,
+                                child: Text(
+                                  member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
+                                  style: GoogleFonts.afacad(color: CustomColor.primaryColor, fontWeight: FontWeight.bold, fontSize: 18),
+                                ),
+                              ),
+                              title: Text(
+                                member.name,
+                                style: GoogleFonts.afacad(fontWeight: FontWeight.w400, fontSize: 22, color: CustomColor.textColor),
+                              ),
+                              subtitle: Text(member.area, style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
+                              trailing: member.isAdmin
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(color: CustomColor.textColor),
+                                      ),
+                                      child: const Text(
+                                        "Admin",
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

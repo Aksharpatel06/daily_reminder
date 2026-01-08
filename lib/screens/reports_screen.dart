@@ -1,3 +1,5 @@
+import 'package:google_fonts/google_fonts.dart';
+
 import '../services/file_helper/file_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,6 +12,7 @@ import '../services/database_service.dart';
 import '../provider/auth_provider.dart';
 import '../models/reading_record.dart';
 import '../models/user_model.dart';
+import '../utils/custom_color.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -251,33 +254,35 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE), // Soft background
-      appBar: AppBar(
-        title: const Text(
-          'Reports',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        actions: [
-          if (_isAdmin)
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: IconButton(
-                icon: const Icon(Icons.download_rounded, color: Colors.black87),
-                tooltip: 'Export to Excel',
-                onPressed: _exportToExcel,
-              ),
-            ),
-        ],
+      backgroundColor: CustomColor.primaryColor,
+      // appBar: AppBar(
+      //   title: const Text(
+      //     'Reports',
+      //     style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+      //   ),
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   centerTitle: true,
+      //   iconTheme: const IconThemeData(color: Colors.black87),
+      //   actions: [
+      //     if (_isAdmin)
+      //       Padding(
+      //         padding: const EdgeInsets.only(right: 8.0),
+      //         child: IconButton(
+      //           icon: const Icon(Icons.download_rounded, color: Colors.black87),
+      //           tooltip: 'Export to Excel',
+      //           onPressed: _exportToExcel,
+      //         ),
+      //       ),
+      //   ],
+      // ),
+      body: SafeArea(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator(color: CustomColor.textColor))
+            : _isAdmin
+            ? _buildAdminView(colorScheme)
+            : _buildUserView(colorScheme),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
-          : _isAdmin
-          ? _buildAdminView(colorScheme)
-          : _buildUserView(colorScheme),
     );
   }
 
@@ -605,16 +610,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: active ? color : Colors.transparent,
-        border: Border.all(color: active ? color : Colors.grey[300]!),
+        color: active ? CustomColor.textColor : Colors.transparent,
+        border: Border.all(color: active ? CustomColor.textColor : CustomColor.subTextColor.withValues(alpha: 0.6)),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: active
-            ? const Icon(Icons.check, color: Colors.white, size: 20)
+            ? const Icon(Icons.check, color: CustomColor.primaryColor, size: 20)
             : Text(
                 label,
-                style: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.bold),
+                style: TextStyle(color: CustomColor.subTextColor, fontWeight: FontWeight.bold),
               ),
       ),
     );
@@ -622,28 +627,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildModernDropdown(String value, List<String> items, Function(String?) onChanged) {
     return Container(
+      height: 50,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: CustomColor.backgroundColor,
+        border: Border.all(color: CustomColor.textColor),
         borderRadius: BorderRadius.circular(30),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
-          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          dropdownColor: CustomColor.backgroundColor,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: CustomColor.textColor),
+          style: GoogleFonts.afacad(color: CustomColor.textColor, fontWeight: FontWeight.w500, fontSize: 16),
           items: items.map((String val) {
             String displayVal = val;
             if (val == 'Today') {
               displayVal = 'Today';
-            } else if (val == 'Week')
+            } else if (val == 'Week') {
               displayVal = 'Week';
-            else if (val == 'Month')
+            } else if (val == 'Month') {
               displayVal = 'Month';
-            else if (val == 'Year')
+            } else if (val == 'Year') {
               displayVal = 'Year';
-            return DropdownMenuItem<String>(value: val, child: Text(displayVal));
+            }
+            return DropdownMenuItem<String>(
+              value: val,
+              child: Text(
+                displayVal,
+                style: GoogleFonts.afacad(color: CustomColor.textColor, fontWeight: FontWeight.w500, fontSize: 16),
+              ),
+            );
           }).toList(),
           onChanged: onChanged,
         ),
@@ -655,62 +669,119 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "My History",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.grey[800]),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: CustomColor.subTextColor.withValues(alpha: 0.1),
+                        border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(Icons.arrow_back, color: CustomColor.textColor, size: 32),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'History',
+                          style: GoogleFonts.afacad(fontSize: 24, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                        ),
+                        Text('Read daily and get’s Swami’s rajipo', style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              _buildModernDropdown(_filterType, ['Today', 'Week', 'Month', 'Year'], (val) => _onFilterChanged(val)),
             ],
           ),
         ),
-        Expanded(
-          child: _userReportData.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+
+        Flexible(
+          child: Container(
+            decoration: BoxDecoration(
+              color: CustomColor.backgroundColor,
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.history_toggle_off, size: 64, color: Colors.grey[300]),
-                      const SizedBox(height: 16),
-                      Text("No records found", style: TextStyle(color: Colors.grey[400])),
+                      const Spacer(),
+                      _buildModernDropdown(_filterType, ['Today', 'Week', 'Month', 'Year'], (val) => _onFilterChanged(val)),
                     ],
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: _userReportData.length,
-                  itemBuilder: (context, index) {
-                    final record = _userReportData[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        leading: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(16)),
-                          child: const Icon(Icons.calendar_today_rounded, color: Color(0xFF3B82F6), size: 24),
-                        ),
-                        title: Text(record.date, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildTodayIcon(record.vachnamrut, "V", const Color(0xFF6366F1)),
-                            const SizedBox(width: 12),
-                            _buildTodayIcon(record.swaminiVato, "S", const Color(0xFF10B981)),
-                          ],
-                        ),
-                      ),
-                    ).animate().fadeIn(delay: (index * 30).ms).slideX(begin: 0.1, end: 0);
-                  },
                 ),
+                Expanded(
+                  child: _userReportData.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.history_toggle_off, size: 64, color: CustomColor.subTextColor),
+                              const SizedBox(height: 16),
+                              Text("No records found", style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          itemCount: _userReportData.length,
+                          itemBuilder: (context, index) {
+                            final record = _userReportData[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: CustomColor.backgroundColor,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: CustomColor.primaryColor.withValues(alpha: 0.3),
+                                    spreadRadius: 5,
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16),
+                                leading: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(color: CustomColor.textColor, shape: BoxShape.circle),
+                                  child: const Icon(Icons.calendar_today_rounded, color: CustomColor.primaryColor, size: 24),
+                                ),
+                                title: Text(
+                                  record.date,
+                                  style: GoogleFonts.afacad(fontWeight: FontWeight.w500, color: CustomColor.textColor, fontSize: 23),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _buildTodayIcon(record.vachnamrut, "V", const Color(0xFF6366F1)),
+                                    const SizedBox(width: 12),
+                                    _buildTodayIcon(record.swaminiVato, "S", const Color(0xFF10B981)),
+                                  ],
+                                ),
+                              ),
+                            ).animate().fadeIn(delay: (index * 30).ms).slideX(begin: 0.1, end: 0);
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
