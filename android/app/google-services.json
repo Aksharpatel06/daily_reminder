@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "612109757208",
+    "project_id": "daily-vachan-62464",
+    "storage_bucket": "daily-vachan-62464.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612109757208:android:8916b9d334e01cce290c6d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhVUQyBLCqz7AmCGUK_WQ1t6BFnVrG4eI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
