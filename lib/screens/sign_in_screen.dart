@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import '../provider/auth_provider.dart';
+import '../utils/custom_color.dart';
 import 'home_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -99,95 +101,159 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Authentication')),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Consumer<AuthProvider>(
-                  builder: (context, authProvider, _) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _isSignUp ? 'Create Account' : 'Welcome',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
-                        ),
-                        const SizedBox(height: 24),
+      backgroundColor: CustomColor.backgroundColor,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SizedBox(child: Image.asset("assets/img/bg.png")),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SingleChildScrollView(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.55,
+                          decoration: BoxDecoration(
+                            color: CustomColor.primaryColor,
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Form(
+                              key: _formKey,
+                              child: Consumer<AuthProvider>(
+                                builder: (context, authProvider, _) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        _isSignUp ? 'Sign Up' : 'Sign In',
+                                        style: GoogleFonts.afacad(fontWeight: FontWeight.w600, fontSize: 28, color: CustomColor.textColor),
+                                      ),
+                                      const SizedBox(height: 24),
 
-                        if (_isSignUp) ...[
-                          TextFormField(
-                            controller: _usernameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Username',
-                              prefixIcon: Icon(Icons.person_outline),
-                              border: OutlineInputBorder(),
+                                      if (_isSignUp) ...[
+                                        TextFormField(
+                                          controller: _usernameController,
+                                          style: GoogleFonts.afacad(color: CustomColor.textColor),
+                                          decoration: InputDecoration(
+                                            labelText: 'UserName',
+                                            fillColor: CustomColor.primaryColor,
+                                            prefixIcon: Icon(Icons.person_outline, color: CustomColor.subTextColor),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              borderSide: BorderSide(color: CustomColor.subTextColor, width: 0.5),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              borderSide: BorderSide(color: CustomColor.subTextColor, width: 0.5),
+                                            ),
+                                            labelStyle: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 20),
+                                          ),
+                                          validator: _isSignUp ? (value) => value == null || value.isEmpty ? 'Please enter a username' : null : null,
+                                        ),
+                                        const SizedBox(height: 16),
+                                      ],
+
+                                      DropdownButtonFormField<String>(
+                                        initialValue: _selectedArea,
+                                        focusColor: CustomColor.primaryColor,
+                                        dropdownColor: CustomColor.primaryColor,
+                                        decoration: InputDecoration(
+                                          labelText: 'Area',
+                                          fillColor: CustomColor.primaryColor,
+                                          prefixIcon: Icon(Icons.location_on_outlined, color: CustomColor.subTextColor),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            borderSide: BorderSide(color: CustomColor.subTextColor, width: 0.5),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            borderSide: BorderSide(color: CustomColor.subTextColor, width: 0.5),
+                                          ),
+                                          labelStyle: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 20),
+                                        ),
+                                        items: _areas.map((String area) {
+                                          return DropdownMenuItem<String>(
+                                            value: area,
+
+                                            child: Text(area, style: TextStyle(color: CustomColor.textColor)),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            _selectedArea = newValue;
+                                          });
+                                        },
+                                        validator: _isSignUp ? (value) => value == null || value.isEmpty ? 'Please select an area' : null : null,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      TextFormField(
+                                        controller: _emailController,
+                                        keyboardType: TextInputType.emailAddress,
+                                        style: GoogleFonts.afacad(color: CustomColor.textColor),
+                                        decoration: InputDecoration(
+                                          labelText: 'Email',
+                                          fillColor: CustomColor.primaryColor,
+                                          prefixIcon: Icon(Icons.email_outlined, color: CustomColor.subTextColor),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            borderSide: BorderSide(color: CustomColor.subTextColor, width: 0.5),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            borderSide: BorderSide(color: CustomColor.subTextColor, width: 0.5),
+                                          ),
+                                          labelStyle: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 20),
+                                        ),
+                                        validator: (value) => value == null || !value.contains('@') ? 'Please enter a valid email' : null,
+                                      ),
+                                      const SizedBox(height: 30),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 50,
+                                        child: ElevatedButton(
+                                          onPressed: authProvider.isLoading ? null : () => _submit(context),
+                                          style: ElevatedButton.styleFrom(
+                                            padding: EdgeInsets.zero,
+                                            backgroundColor: CustomColor.textColor,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          ),
+                                          child: authProvider.isLoading
+                                              ? SizedBox(width: 20, height: 20, child: const CircularProgressIndicator(color: Colors.white))
+                                              : Text(
+                                                  _isSignUp ? 'Sign Up' : 'Sign In',
+                                                  style: GoogleFonts.afacad(fontSize: 20, color: CustomColor.backgroundColor),
+                                                ),
+                                        ),
+                                      ),
+
+                                      TextButton(
+                                        onPressed: _toggleMode,
+                                        child: Text(
+                                          _isSignUp ? 'Already have an account? Sign In' : 'Don\'t have an account? Sign Up',
+                                          style: GoogleFonts.afacad(fontSize: 18, color: CustomColor.subTextColor),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
-                            validator: _isSignUp ? (value) => value == null || value.isEmpty ? 'Please enter a username' : null : null,
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-
-                        DropdownButtonFormField<String>(
-                          value: _selectedArea,
-                          decoration: const InputDecoration(
-                            labelText: 'Area',
-                            prefixIcon: Icon(Icons.location_on_outlined),
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _areas.map((String area) {
-                            return DropdownMenuItem<String>(value: area, child: Text(area));
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedArea = newValue;
-                            });
-                          },
-                          validator: _isSignUp ? (value) => value == null || value.isEmpty ? 'Please select an area' : null : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined), border: OutlineInputBorder()),
-                          validator: (value) => value == null || !value.contains('@') ? 'Please enter a valid email' : null,
-                        ),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: authProvider.isLoading ? null : () => _submit(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: authProvider.isLoading
-                                ? SizedBox(width: 20, height: 20, child: const CircularProgressIndicator(color: Colors.white))
-                                : Text(_isSignUp ? 'Sign Up' : 'Sign In', style: const TextStyle(fontSize: 16, color: Colors.white)),
                           ),
                         ),
-
-                        const SizedBox(height: 16),
-                        TextButton(
-                          onPressed: _toggleMode,
-                          child: Text(_isSignUp ? 'Already have an account? Sign In' : 'Don\'t have an account? Sign Up'),
-                        ),
-                      ],
-                    );
-                  },
+                      ),
+                      Align(alignment: Alignment.topCenter, child: Image.asset('assets/img/logo.png', width: 70, height: 70)),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

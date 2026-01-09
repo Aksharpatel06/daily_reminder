@@ -28,112 +28,110 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = context.watch<AuthProvider>().currentUser;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(color: CustomColor.primaryColor),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: CustomColor.backgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: CustomColor.subTextColor.withValues(alpha: 0.1),
+                          border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(Icons.menu_book_rounded, color: CustomColor.textColor, size: 32),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Daily Reading',
+                              style: GoogleFonts.afacad(fontSize: 24, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                            ),
+                            Text('Register and track your reading', style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 16)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: CustomColor.primaryColor,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                ),
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: CustomColor.subTextColor.withValues(alpha: 0.1),
-                            border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(Icons.menu_book_rounded, color: CustomColor.textColor, size: 32),
-                        ),
-                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 15,
                             children: [
+                              Image.asset('assets/img/vachanamrut.png', width: 150),
                               Text(
-                                'Daily Reading',
-                                style: GoogleFonts.afacad(fontSize: 24, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                                'Vachanamrut',
+                                style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
                               ),
-                              Text('Register and track your reading', style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 16)),
                             ],
                           ),
+                        ),
+
+                        Expanded(
+                          child: Column(
+                            spacing: 15,
+                            children: [
+                              Image.asset('assets/img/swani_vatoo.png', width: 150),
+                              Text(
+                                'Swamini Vato',
+                                style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    if (user != null && user.isAdmin) ...[
+                      _buildAdminMenuCard(context, 'Members', 'Check members', Icons.people_rounded, () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const MembersScreen()));
+                      }),
+                      const SizedBox(height: 16),
+                    ],
+                    Row(
+                      spacing: 20,
+                      children: [
+                        Expanded(
+                          child: _buildMenuCard(context, 'Registration', 'Register daily reading', Icons.calendar_today_rounded, () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const DailyRegistrationScreen()));
+                          }),
+                        ),
+                        Expanded(
+                          child: _buildMenuCard(context, 'History', 'Check your previous  reading results', Icons.bar_chart_rounded, () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen()));
+                          }),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: CustomColor.backgroundColor,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-                  ),
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              spacing: 15,
-                              children: [
-                                Image.asset('assets/img/vachanamrut.png', width: 150),
-                                Text(
-                                  'Vachanamrut',
-                                  style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Expanded(
-                            child: Column(
-                              spacing: 15,
-                              children: [
-                                Image.asset('assets/img/swani_vatoo.png', width: 150),
-                                Text(
-                                  'Swamini Vato',
-                                  style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 30),
-                      if (user != null && user.isAdmin) ...[
-                        _buildAdminMenuCard(context, 'Members', 'Check members', Icons.people_rounded, () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const MembersScreen()));
-                        }),
-                        const SizedBox(height: 16),
-                      ],
-                      Row(
-                        spacing: 20,
-                        children: [
-                          Expanded(
-                            child: _buildMenuCard(context, 'Registration', 'Register daily reading', Icons.calendar_today_rounded, () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const DailyRegistrationScreen()));
-                            }),
-                          ),
-                          Expanded(
-                            child: _buildMenuCard(context, 'History', 'Check your previous  reading results', Icons.bar_chart_rounded, () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const ReportsScreen()));
-                            }),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -145,7 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(24.0),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: CustomColor.primaryColor.withValues(alpha: 0.4)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: CustomColor.subTextColor, width: 0.2),
+          color: CustomColor.secondaryColor,
+        ),
         child: Row(
           children: [
             Container(
@@ -179,7 +181,11 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.27),
         padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: CustomColor.primaryColor.withValues(alpha: 0.4)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: CustomColor.subTextColor, width: 0.2),
+          color: CustomColor.secondaryColor,
+        ),
         child: Column(
           spacing: 10,
           children: [

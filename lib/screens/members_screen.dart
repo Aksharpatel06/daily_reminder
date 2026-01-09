@@ -34,7 +34,7 @@ class _MembersScreenState extends State<MembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColor.primaryColor,
+      backgroundColor: CustomColor.backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -78,7 +78,7 @@ class _MembersScreenState extends State<MembersScreen> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: CustomColor.backgroundColor,
+                  color: CustomColor.primaryColor,
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                 ),
                 child: _isLoading
@@ -102,7 +102,7 @@ class _MembersScreenState extends State<MembersScreen> {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
-                              color: CustomColor.backgroundColor,
+                              color: CustomColor.secondaryColor,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(color: Colors.black.withValues(alpha: 0.3), spreadRadius: 5, blurRadius: 10, offset: const Offset(0, 2)),
