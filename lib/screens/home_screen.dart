@@ -6,6 +6,7 @@ import '../utils/custom_color.dart';
 import 'daily_registration_screen.dart';
 import 'reports_screen.dart';
 import 'members_screen.dart';
+import 'sign_in_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
@@ -28,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = context.watch<AuthProvider>().currentUser;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: _buildDrawer(context),
       backgroundColor: CustomColor.backgroundColor,
       body: SafeArea(
         child: Column(
@@ -39,14 +43,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: CustomColor.subTextColor.withValues(alpha: 0.1),
-                          border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
-                          borderRadius: BorderRadius.circular(16),
+                      GestureDetector(
+                        onTap: () {
+                          _scaffoldKey.currentState?.openDrawer();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: CustomColor.subTextColor.withValues(alpha: 0.1),
+                            border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(Icons.menu_book_rounded, color: CustomColor.textColor, size: 32),
                         ),
-                        child: Icon(Icons.menu_book_rounded, color: CustomColor.textColor, size: 32),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -208,6 +217,51 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: GoogleFonts.afacad(fontSize: 17, color: Colors.grey[600], height: 1.4),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    final user = context.read<AuthProvider>().currentUser;
+    return Drawer(
+      backgroundColor: CustomColor.primaryColor,
+      child: SafeArea(
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(color: CustomColor.secondaryColor),
+              accountName: Text(
+                user?.name ?? 'User',
+                style: GoogleFonts.afacad(fontWeight: FontWeight.bold, fontSize: 20, color: CustomColor.textColor),
+              ),
+              accountEmail: Text(user?.area ?? '', style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 16)),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: CustomColor.textColor,
+                child: Text(
+                  user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U',
+                  style: GoogleFonts.afacad(fontWeight: FontWeight.bold, fontSize: 24, color: CustomColor.primaryColor),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+              title: Text(
+                'Logout',
+                style: GoogleFonts.afacad(color: Colors.redAccent, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              onTap: () async {
+                // Close drawer first
+                Navigator.pop(context);
+
+                // Show confirmation dialog or just logout
+                await context.read<AuthProvider>().signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const SignInScreen()), (route) => false);
+                }
+              },
             ),
           ],
         ),
