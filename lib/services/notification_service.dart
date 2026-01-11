@@ -1,7 +1,5 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
-import 'package:flutter_timezone/flutter_timezone.dart';
 
 class NotificationService {
   // Singleton pattern
@@ -12,26 +10,6 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
-    // Initialize timezone
-    tz.initializeTimeZones();
-    final timeZoneName = await FlutterTimezone.getLocalTimezone();
-    try {
-      print('Local timezone identifier: ${timeZoneName.identifier}');
-      tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
-    } catch (e) {
-      print('Error setting local timezone: $e');
-      if (timeZoneName.identifier.toString().contains('India')) {
-        try {
-          tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
-          print('Fallback to Asia/Kolkata success');
-        } catch (e2) {
-          tz.setLocalLocation(tz.getLocation('UTC'));
-        }
-      } else {
-        tz.setLocalLocation(tz.getLocation('UTC'));
-      }
-    }
-
     // Initialize notification settings for Android
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -60,34 +38,30 @@ class NotificationService {
         ?.requestNotificationsPermission();
   }
 
-  Future<void> scheduleDailyNotification() async {
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      0, // ID
-      'Daily Read Reminder', // Title
-      '1 vachnamut and 5 swami vato read', // Body
-      _nextInstanceOf8PM(), // Scheduled time
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'daily_notification_channel',
-          'Daily Read Reminder',
-          channelDescription: 'Channel for daily 8 PM notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time, // Repeats daily at the same time
-    );
-  }
+  void notificationHandler() {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      WebNotification? web = message.notification?.web;
 
-  tz.TZDateTime _nextInstanceOf8PM() {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, 20, 0); // 20 is 8 PM
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-    return scheduledDate;
+      if (notification != null && (android != null || web != null)) {
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'daily_notification_channel',
+              'Daily Read Reminder',
+              channelDescription: 'Channel for daily notifications',
+              importance: Importance.max,
+              priority: Priority.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+            iOS: DarwinNotificationDetails(),
+          ),
+        );
+      }
+    });
   }
 }

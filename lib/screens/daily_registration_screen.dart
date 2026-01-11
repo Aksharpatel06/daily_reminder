@@ -31,9 +31,7 @@ class _DailyRegistrationScreenState extends State<DailyRegistrationScreen> {
   @override
   void initState() {
     super.initState();
-    final authProvider = context.read<AuthProvider>();
-    final user = authProvider.currentUser;
-    _dbService = DatabaseService(area: user?.area ?? '');
+    _dbService = DatabaseService();
     _checkRoleAndLoad();
   }
 

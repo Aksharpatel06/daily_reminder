@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter_application_1/firebase_options.dart';
 import 'package:flutter_application_1/services/auth_services.dart';
@@ -8,15 +9,24 @@ import 'provider/auth_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'services/notification_service.dart';
+import 'services/app_pref.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await NotificationService().init();
-  await NotificationService().scheduleDailyNotification();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.black, // status bar background
+      statusBarIconBrightness: Brightness.light, // Android icons → white
+      statusBarBrightness: Brightness.dark, // iOS icons → white
+    ),
+  );
 
-  // await AppPref.appPref.init();
+  await NotificationService().init();
+  NotificationService().notificationHandler();
+
+  await AppPref.appPref.init();
   runApp(const MyApp());
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
+import '../services/app_pref.dart';
 import '../services/auth_services.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -38,6 +39,7 @@ class AuthProvider extends ChangeNotifier {
         // AppPref.appPref.saveUser(user);
         _currentUser = user;
         _setLoading(false);
+        await AppPref.appPref.saveArea(area);
         notifyListeners();
         return true;
       }
@@ -63,6 +65,7 @@ class AuthProvider extends ChangeNotifier {
         // AppPref.appPref.saveUser(user);
         _currentUser = user;
         _setLoading(false);
+        await AppPref.appPref.saveArea(area);
         notifyListeners();
         return true;
       }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_application_1/services/app_pref.dart';
 import 'package:intl/intl.dart';
 import '../models/reading_record.dart';
 import '../models/user_model.dart';
@@ -6,11 +7,10 @@ import '../models/user_model.dart';
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _usersCollection = 'area';
-  final String area;
   late final String _collection;
 
-  DatabaseService({this.area = ''}) {
-    _collection = 'daily_read$area';
+  DatabaseService() {
+    _collection = 'daily_read${AppPref.appPref.getArea()}';
   }
 
   Future<void> ensurePastRecords(String uid, DateTime createdAt) async {

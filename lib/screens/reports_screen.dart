@@ -2,7 +2,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../services/file_helper/file_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column, Row, Border;
@@ -40,11 +39,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   void initState() {
     super.initState();
-    _updateDateRange();
-    final authProvider = context.read<AuthProvider>();
-    final user = authProvider.currentUser;
-    _dbService = DatabaseService(area: user?.area ?? '');
-    _checkRoleAndLoad();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateDateRange();
+      _dbService = DatabaseService();
+      _checkRoleAndLoad();
+    });
   }
 
   void _updateDateRange() {
@@ -254,34 +253,58 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: CustomColor.primaryColor,
-      // appBar: AppBar(
-      //   title: const Text(
-      //     'Reports',
-      //     style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-      //   ),
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   centerTitle: true,
-      //   iconTheme: const IconThemeData(color: Colors.black87),
-      //   actions: [
-      //     if (_isAdmin)
-      //       Padding(
-      //         padding: const EdgeInsets.only(right: 8.0),
-      //         child: IconButton(
-      //           icon: const Icon(Icons.download_rounded, color: Colors.black87),
-      //           tooltip: 'Export to Excel',
-      //           onPressed: _exportToExcel,
-      //         ),
-      //       ),
-      //   ],
-      // ),
+      backgroundColor: CustomColor.backgroundColor,
+
       body: SafeArea(
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator(color: CustomColor.textColor))
-            : _isAdmin
-            ? _buildAdminView(colorScheme)
-            : _buildUserView(colorScheme),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: CustomColor.subTextColor.withValues(alpha: 0.1),
+                        border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(Icons.arrow_back, color: CustomColor.textColor, size: 32),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'History',
+                          style: GoogleFonts.afacad(fontSize: 24, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                        ),
+                        Text('Read daily and get’s Swami’s rajipo', style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 16)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: CustomColor.primaryColor,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                ),
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator(color: CustomColor.textColor))
+                    : _isAdmin
+                    ? _buildAdminView(colorScheme)
+                    : _buildUserView(colorScheme),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -297,12 +320,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Overview",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[800]),
+                style: GoogleFonts.afacad(fontSize: 24, fontWeight: FontWeight.bold, color: CustomColor.textColor),
               ),
+              Spacer(),
+              GestureDetector(
+                onTap: () => _exportToExcel(),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: CustomColor.primaryColor,
+                    border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(Icons.download, color: CustomColor.textColor, size: 24),
+                ),
+              ),
+              SizedBox(width: 16),
               _buildModernDropdown(_filterType, ['Today', 'Week', 'Month', 'Year'], (val) => _onFilterChanged(val)),
             ],
           ),
@@ -311,22 +347,30 @@ class _ReportsScreenState extends State<ReportsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: CustomColor.primaryColor,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
+              border: Border.all(color: CustomColor.subTextColor),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 isExpanded: true,
-                hint: Text("Select member to filter", style: TextStyle(color: Colors.grey[400])),
+                hint: Text("Select member to filter", style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
                 value: _selectedMemberId,
-                icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                dropdownColor: CustomColor.primaryColor,
+                style: GoogleFonts.afacad(color: CustomColor.textColor),
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: CustomColor.textColor),
                 items: [
-                  const DropdownMenuItem<String>(value: null, child: Text("All Members")),
+                  DropdownMenuItem<String>(
+                    value: null,
+                    child: Text("All Members", style: GoogleFonts.afacad(color: CustomColor.textColor)),
+                  ),
                   ..._adminReportData.map((item) {
                     final user = item['user'] as UserModel;
-                    return DropdownMenuItem<String>(value: user.userId, child: Text(user.name));
-                  }).toList(),
+                    return DropdownMenuItem<String>(
+                      value: user.userId,
+                      child: Text(user.name, style: GoogleFonts.afacad(color: CustomColor.textColor)),
+                    );
+                  }),
                 ],
                 onChanged: (val) {
                   setState(() => _selectedMemberId = val);
@@ -339,7 +383,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
           if (_selectedMemberId == null) _buildOverallCharts() else _buildIndividualCharts(filteredList.firstOrNull),
 
           const SizedBox(height: 32),
-          const Text("Detailed Logs", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            "Detailed Logs",
+            style: GoogleFonts.afacad(fontSize: 20, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+          ),
           const SizedBox(height: 16),
 
           if (filteredList.isEmpty)
@@ -348,9 +395,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 padding: const EdgeInsets.all(40.0),
                 child: Column(
                   children: [
-                    Icon(Icons.inbox_outlined, size: 48, color: Colors.grey[300]),
+                    Icon(Icons.inbox_outlined, size: 48, color: CustomColor.subTextColor.withValues(alpha: 0.6)),
                     const SizedBox(height: 16),
-                    Text("No records found", style: TextStyle(color: Colors.grey[400])),
+                    Text("No records found", style: GoogleFonts.afacad(color: CustomColor.subTextColor.withValues(alpha: 0.6))),
                   ],
                 ),
               ),
@@ -368,25 +415,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: CustomColor.primaryColor,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                    boxShadow: [BoxShadow(color: CustomColor.subTextColor.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     leading: CircleAvatar(
                       radius: 24,
-                      backgroundColor: isActive ? const Color(0xFFE0E7FF) : Colors.grey[100],
+                      backgroundColor: isActive ? CustomColor.textColor : CustomColor.subTextColor.withValues(alpha: 0.1),
                       child: Text(
                         user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-                        style: TextStyle(color: isActive ? const Color(0xFF6366F1) : Colors.grey, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.afacad(color: isActive ? CustomColor.primaryColor : CustomColor.subTextColor, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    title: Text(user.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    subtitle: Text(user.area, style: TextStyle(color: Colors.grey[500])),
+                    title: Text(
+                      user.name,
+                      style: GoogleFonts.afacad(fontWeight: FontWeight.bold, fontSize: 20, color: CustomColor.textColor),
+                    ),
+                    subtitle: Text(user.area, style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
                     trailing: _buildStatBadge(item['vachnamrutCount'], item['swaminiCount'], item['totalDaysRead'], _filterType == 'Today'),
                   ),
-                ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.1, end: 0);
+                );
               },
             ),
         ],
@@ -405,23 +455,31 @@ class _ReportsScreenState extends State<ReportsScreen> {
       children: [
         Expanded(
           child: Container(
-            height: 220,
+            height: 250,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: CustomColor.secondaryColor,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
             ),
             child: Column(
               children: [
-                const Text("Participation Rate", style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 20),
+                Text(
+                  "Participation",
+                  style: GoogleFonts.afacad(fontWeight: FontWeight.w800, fontSize: 18, color: CustomColor.textColor),
+                ),
+                const SizedBox(height: 40),
                 Expanded(
                   child: PieChart(
                     PieChartData(
                       sections: [
-                        PieChartSectionData(color: const Color(0xFF6366F1), value: activePercentage * 100, radius: 25, showTitle: false),
-                        PieChartSectionData(color: Colors.grey[200]!, value: inactivePercentage * 100, radius: 20, showTitle: false),
+                        PieChartSectionData(color: CustomColor.textColor, value: activePercentage * 100, radius: 25, showTitle: false),
+                        PieChartSectionData(
+                          color: CustomColor.subTextColor.withValues(alpha: 0.1),
+                          value: inactivePercentage * 100,
+                          radius: 20,
+                          showTitle: false,
+                        ),
                       ],
                       startDegreeOffset: 270,
                       centerSpaceRadius: 40,
@@ -429,10 +487,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 30),
                 Text(
                   "${(activePercentage * 100).toStringAsFixed(0)}% Active",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF6366F1)),
+                  style: GoogleFonts.afacad(fontSize: 18, fontWeight: FontWeight.bold, color: CustomColor.textColor),
                 ),
               ],
             ),
@@ -462,20 +520,22 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final daysInPeriod = _endDate.difference(_startDate).inDays + 1;
 
     return Container(
-      height: 300,
+      height: 250,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
-      ),
+      decoration: BoxDecoration(color: CustomColor.secondaryColor, borderRadius: BorderRadius.circular(24)),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Reading Analysis", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Text("${((totalReads / daysInPeriod) * 100).toStringAsFixed(0)}% Consistency", style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+              Text(
+                "Reading Analysis",
+                style: GoogleFonts.afacad(fontWeight: FontWeight.bold, fontSize: 18, color: CustomColor.textColor),
+              ),
+              Text(
+                "${((totalReads / daysInPeriod) * 100).toStringAsFixed(0)}% Consistency",
+                style: GoogleFonts.afacad(fontSize: 12, color: CustomColor.subTextColor),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -491,16 +551,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           value: vCount.toDouble(),
                           title: "V",
                           radius: 40,
-                          titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          titleStyle: GoogleFonts.afacad(color: CustomColor.textColor, fontWeight: FontWeight.bold),
                         ),
                         PieChartSectionData(
                           color: const Color(0xFF10B981),
                           value: sCount.toDouble(),
                           title: "S",
                           radius: 40,
-                          titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          titleStyle: GoogleFonts.afacad(color: CustomColor.textColor, fontWeight: FontWeight.bold),
                         ),
-                        if (vCount == 0 && sCount == 0) PieChartSectionData(color: Colors.grey[200]!, value: 1, showTitle: false, radius: 30),
+                        if (vCount == 0 && sCount == 0)
+                          PieChartSectionData(color: CustomColor.subTextColor.withValues(alpha: 0.5), value: 1, showTitle: false, radius: 30),
                       ],
                       centerSpaceRadius: 30,
                       sectionsSpace: 2,
@@ -537,9 +598,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(label, style: GoogleFonts.afacad(fontSize: 12, color: CustomColor.textColor)),
         const Spacer(),
-        Text(count.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          count.toString(),
+          style: GoogleFonts.afacad(fontWeight: FontWeight.bold, color: CustomColor.textColor),
+        ),
       ],
     );
   }
@@ -548,22 +612,22 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: CustomColor.secondaryColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.1)),
+        border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 28),
+          Icon(icon, color: CustomColor.textColor, size: 28),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 value,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+                style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
               ),
-              Text(title, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+              Text(title, style: GoogleFonts.afacad(fontSize: 13, color: CustomColor.subTextColor)),
             ],
           ),
         ],
@@ -575,11 +639,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (isToday) {
       return Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildTodayIcon(vCount > 0, "V", const Color(0xFF6366F1)),
-          const SizedBox(width: 8),
-          _buildTodayIcon(sCount > 0, "S", const Color(0xFF10B981)),
-        ],
+        children: [_buildTodayIcon(vCount > 0, "V"), const SizedBox(width: 8), _buildTodayIcon(sCount > 0, "S")],
       );
     }
 
@@ -587,25 +647,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text("$daysRead Days", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(
+          "$daysRead Days",
+          style: GoogleFonts.afacad(fontWeight: FontWeight.bold, fontSize: 18, color: CustomColor.textColor),
+        ),
         const SizedBox(height: 4),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.book, size: 12, color: Colors.grey[400]),
+            Icon(Icons.book, size: 12, color: CustomColor.subTextColor),
             const SizedBox(width: 4),
-            Text("$vCount", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text("$vCount", style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 15)),
             const SizedBox(width: 8),
-            Icon(Icons.menu_book, size: 12, color: Colors.grey[400]),
+            Icon(Icons.menu_book, size: 12, color: CustomColor.subTextColor),
             const SizedBox(width: 4),
-            Text("$sCount", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text("$sCount", style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 15)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildTodayIcon(bool active, String label, Color color) {
+  Widget _buildTodayIcon(bool active, String label) {
     return Container(
       width: 36,
       height: 36,
@@ -619,7 +682,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             ? const Icon(Icons.check, color: CustomColor.primaryColor, size: 20)
             : Text(
                 label,
-                style: TextStyle(color: CustomColor.subTextColor, fontWeight: FontWeight.bold),
+                style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontWeight: FontWeight.bold),
               ),
       ),
     );
@@ -631,7 +694,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: CustomColor.backgroundColor,
-        border: Border.all(color: CustomColor.textColor),
+        border: Border.all(color: CustomColor.textColor.withValues(alpha: 0.6)),
         borderRadius: BorderRadius.circular(30),
       ),
       child: DropdownButtonHideUnderline(
@@ -666,124 +729,82 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildUserView(ColorScheme colorScheme) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return Flexible(
+      child: Container(
+        decoration: BoxDecoration(
+          color: CustomColor.backgroundColor,
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: CustomColor.subTextColor.withValues(alpha: 0.1),
-                        border: Border.all(color: CustomColor.subTextColor.withValues(alpha: 0.6)),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Icon(Icons.arrow_back, color: CustomColor.textColor, size: 32),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'History',
-                          style: GoogleFonts.afacad(fontSize: 24, fontWeight: FontWeight.bold, color: CustomColor.textColor),
-                        ),
-                        Text('Read daily and get’s Swami’s rajipo', style: GoogleFonts.afacad(color: CustomColor.subTextColor, fontSize: 16)),
-                      ],
-                    ),
-                  ),
+                  const Spacer(),
+                  _buildModernDropdown(_filterType, ['Today', 'Week', 'Month', 'Year'], (val) => _onFilterChanged(val)),
                 ],
               ),
-            ],
-          ),
-        ),
-
-        Flexible(
-          child: Container(
-            decoration: BoxDecoration(
-              color: CustomColor.backgroundColor,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
             ),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Spacer(),
-                      _buildModernDropdown(_filterType, ['Today', 'Week', 'Month', 'Year'], (val) => _onFilterChanged(val)),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: _userReportData.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.history_toggle_off, size: 64, color: CustomColor.subTextColor),
-                              const SizedBox(height: 16),
-                              Text("No records found", style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
+            Expanded(
+              child: _userReportData.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.history_toggle_off, size: 64, color: CustomColor.subTextColor),
+                          const SizedBox(height: 16),
+                          Text("No records found", style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      itemCount: _userReportData.length,
+                      itemBuilder: (context, index) {
+                        final record = _userReportData[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: CustomColor.backgroundColor,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: CustomColor.primaryColor.withValues(alpha: 0.3),
+                                spreadRadius: 5,
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
                             ],
                           ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          itemCount: _userReportData.length,
-                          itemBuilder: (context, index) {
-                            final record = _userReportData[index];
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: CustomColor.backgroundColor,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: CustomColor.primaryColor.withValues(alpha: 0.3),
-                                    spreadRadius: 5,
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(16),
-                                leading: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(color: CustomColor.textColor, shape: BoxShape.circle),
-                                  child: const Icon(Icons.calendar_today_rounded, color: CustomColor.primaryColor, size: 24),
-                                ),
-                                title: Text(
-                                  record.date,
-                                  style: GoogleFonts.afacad(fontWeight: FontWeight.w500, color: CustomColor.textColor, fontSize: 23),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _buildTodayIcon(record.vachnamrut, "V", const Color(0xFF6366F1)),
-                                    const SizedBox(width: 12),
-                                    _buildTodayIcon(record.swaminiVato, "S", const Color(0xFF10B981)),
-                                  ],
-                                ),
-                              ),
-                            ).animate().fadeIn(delay: (index * 30).ms).slideX(begin: 0.1, end: 0);
-                          },
-                        ),
-                ),
-              ],
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(color: CustomColor.textColor, shape: BoxShape.circle),
+                              child: const Icon(Icons.calendar_today_rounded, color: CustomColor.primaryColor, size: 24),
+                            ),
+                            title: Text(
+                              record.date,
+                              style: GoogleFonts.afacad(fontWeight: FontWeight.w500, color: CustomColor.textColor, fontSize: 23),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildTodayIcon(record.vachnamrut, "V"),
+                                const SizedBox(width: 12),
+                                _buildTodayIcon(record.swaminiVato, "S"),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
