@@ -332,4 +332,20 @@ class DatabaseService {
 
     return results;
   }
+
+  Future<List<String>> getDailyImages() async {
+    try {
+      final snapshot = await _firestore.collection('images').limit(1).get();
+      if (snapshot.docs.isNotEmpty) {
+        final data = snapshot.docs.first.data();
+        final images = data['images'] as List<dynamic>?;
+        if (images != null && images.isNotEmpty) {
+          return images.map((e) => e as String).toList();
+        }
+      }
+    } catch (e) {
+      print('Error fetching daily images: $e');
+    }
+    return [];
+  }
 }

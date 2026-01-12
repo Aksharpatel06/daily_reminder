@@ -547,18 +547,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     PieChartData(
                       sections: [
                         PieChartSectionData(
-                          color: const Color(0xFF6366F1),
+                          color: const Color(0xFFF4DFC8),
                           value: vCount.toDouble(),
                           title: "V",
                           radius: 40,
-                          titleStyle: GoogleFonts.afacad(color: CustomColor.textColor, fontWeight: FontWeight.bold),
+                          titleStyle: GoogleFonts.afacad(color: CustomColor.primaryColor, fontWeight: FontWeight.bold),
                         ),
                         PieChartSectionData(
-                          color: const Color(0xFF10B981),
+                          color: const Color(0xFFF4BF96),
                           value: sCount.toDouble(),
                           title: "S",
                           radius: 40,
-                          titleStyle: GoogleFonts.afacad(color: CustomColor.textColor, fontWeight: FontWeight.bold),
+                          titleStyle: GoogleFonts.afacad(color: CustomColor.primaryColor, fontWeight: FontWeight.bold),
                         ),
                         if (vCount == 0 && sCount == 0)
                           PieChartSectionData(color: CustomColor.subTextColor.withValues(alpha: 0.5), value: 1, showTitle: false, radius: 30),
@@ -573,9 +573,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildLegendItem("Vachnamrut", vCount, const Color(0xFF6366F1)),
+                      _buildLegendItem("Vachnamrut", vCount, const Color(0xFFF4DFC8)),
                       const SizedBox(height: 8),
-                      _buildLegendItem("Swamini Vato", sCount, const Color(0xFF10B981)),
+                      _buildLegendItem("Swamini Vato", sCount, const Color(0xFFF4BF96)),
                       const SizedBox(height: 8),
                       _buildLegendItem("Total Days", totalReads, Colors.orange),
                     ],
@@ -729,81 +729,75 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildUserView(ColorScheme colorScheme) {
-    return Flexible(
-      child: Container(
-        decoration: BoxDecoration(
-          color: CustomColor.backgroundColor,
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Spacer(),
-                  _buildModernDropdown(_filterType, ['Today', 'Week', 'Month', 'Year'], (val) => _onFilterChanged(val)),
-                ],
-              ),
+    return Container(
+      decoration: BoxDecoration(
+        color: CustomColor.backgroundColor,
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Spacer(),
+                _buildModernDropdown(_filterType, ['Today', 'Week', 'Month', 'Year'], (val) => _onFilterChanged(val)),
+              ],
             ),
-            Expanded(
-              child: _userReportData.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.history_toggle_off, size: 64, color: CustomColor.subTextColor),
-                          const SizedBox(height: 16),
-                          Text("No records found", style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      itemCount: _userReportData.length,
-                      itemBuilder: (context, index) {
-                        final record = _userReportData[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: CustomColor.backgroundColor,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: CustomColor.primaryColor.withValues(alpha: 0.3),
-                                spreadRadius: 5,
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(16),
-                            leading: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(color: CustomColor.textColor, shape: BoxShape.circle),
-                              child: const Icon(Icons.calendar_today_rounded, color: CustomColor.primaryColor, size: 24),
-                            ),
-                            title: Text(
-                              record.date,
-                              style: GoogleFonts.afacad(fontWeight: FontWeight.w500, color: CustomColor.textColor, fontSize: 23),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _buildTodayIcon(record.vachnamrut, "V"),
-                                const SizedBox(width: 12),
-                                _buildTodayIcon(record.swaminiVato, "S"),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+          ),
+          Expanded(
+            child: _userReportData.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.history_toggle_off, size: 64, color: CustomColor.subTextColor),
+                        const SizedBox(height: 16),
+                        Text("No records found", style: GoogleFonts.afacad(color: CustomColor.subTextColor)),
+                      ],
                     ),
-            ),
-          ],
-        ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    itemCount: _userReportData.length,
+                    itemBuilder: (context, index) {
+                      final record = _userReportData[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: CustomColor.backgroundColor,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: CustomColor.primaryColor.withValues(alpha: 0.3),
+                              spreadRadius: 5,
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          leading: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(color: CustomColor.textColor, shape: BoxShape.circle),
+                            child: const Icon(Icons.calendar_today_rounded, color: CustomColor.primaryColor, size: 24),
+                          ),
+                          title: Text(
+                            record.date,
+                            style: GoogleFonts.afacad(fontWeight: FontWeight.w500, color: CustomColor.textColor, fontSize: 23),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [_buildTodayIcon(record.vachnamrut, "V"), const SizedBox(width: 12), _buildTodayIcon(record.swaminiVato, "S")],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }

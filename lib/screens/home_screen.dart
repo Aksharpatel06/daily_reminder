@@ -7,6 +7,7 @@ import 'daily_registration_screen.dart';
 import 'reports_screen.dart';
 import 'members_screen.dart';
 import 'sign_in_screen.dart';
+import '../services/database_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +24,17 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().loadCurrentUser();
     });
+  }
+
+  String _convertDriveLink(String url) {
+    if (url.contains('drive.google.com') && url.contains('/view')) {
+      final idMatch = RegExp(r'/d/([^/]+)/').firstMatch(url);
+      if (idMatch != null) {
+        final id = idMatch.group(1);
+        return 'https://drive.google.com/uc?export=view&id=$id';
+      }
+    }
+    return url;
   }
 
   @override
@@ -114,7 +126,51 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 10),
+                    FutureBuilder<List<String>>(
+                      future: DatabaseService().getDailyImages(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+                        }
+                        if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
+                          return Container(
+                            constraints: BoxConstraints(maxHeight: 203),
+                            margin: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: PageView.builder(
+                              controller: PageController(viewportFraction: 0.9),
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                final imageUrl = _convertDriveLink(snapshot.data![index]);
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress.expectedTotalBytes != null
+                                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
+                        return const SizedBox(height: 20);
+                      },
+                    ),
+                    SizedBox(height: 10),
                     if (user != null && user.isAdmin) ...[
                       _buildAdminMenuCard(context, 'Members', 'Check members', Icons.people_rounded, () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const MembersScreen()));
