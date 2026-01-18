@@ -116,7 +116,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
-                          height: MediaQuery.of(context).size.height * 0.55,
+                          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.55),
                           decoration: BoxDecoration(
                             color: CustomColor.primaryColor,
                             borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),

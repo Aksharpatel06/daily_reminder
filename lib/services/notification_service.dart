@@ -10,6 +10,9 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    // Request permission for Firebase Messaging (Web, iOS, etc.)
+    await FirebaseMessaging.instance.requestPermission();
+
     // Initialize notification settings for Android
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
 

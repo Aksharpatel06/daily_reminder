@@ -2,12 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:animations/animations.dart';
-import 'package:flutter_application_1/firebase_options.dart';
-import 'package:flutter_application_1/services/auth_services.dart';
 import 'package:provider/provider.dart';
+import 'firebase_options.dart';
 import 'provider/auth_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/sign_in_screen.dart';
+import 'services/auth_services.dart';
 import 'services/notification_service.dart';
 import 'services/app_pref.dart';
 
