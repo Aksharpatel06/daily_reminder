@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../provider/auth_provider.dart';
+import '../provider/daily_provider.dart';
 import '../utils/custom_color.dart';
 import 'daily_registration_screen.dart';
 import 'reports_screen.dart';
 import 'members_screen.dart';
 import 'sign_in_screen.dart';
-import '../services/database_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().loadCurrentUser();
+      context.read<DailyProvider>().fetchDailyImages();
     });
   }
 
@@ -94,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                 ),
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -127,21 +128,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     SizedBox(height: 10),
-                    FutureBuilder<List<String>>(
-                      future: DatabaseService().getDailyImages(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                    Consumer<DailyProvider>(
+                      builder: (context, provider, child) {
+                        if (provider.isLoading) {
                           return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
                         }
-                        if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
+                        if (provider.dailyImages.isNotEmpty) {
                           return Container(
                             constraints: BoxConstraints(maxHeight: 203),
                             margin: const EdgeInsets.symmetric(vertical: 20.0),
                             child: PageView.builder(
                               controller: PageController(viewportFraction: 0.9),
-                              itemCount: snapshot.data!.length,
+                              itemCount: provider.dailyImages.length,
                               itemBuilder: (context, index) {
-                                final imageUrl = _convertDriveLink(snapshot.data![index]);
+                                final imageUrl = _convertDriveLink(provider.dailyImages[index]);
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
                                   child: ClipRRect(
@@ -244,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.27),
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),

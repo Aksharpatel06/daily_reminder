@@ -5,6 +5,7 @@ import 'package:animations/animations.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'provider/auth_provider.dart';
+import 'provider/daily_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'services/auth_services.dart';
@@ -36,7 +37,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => DailyProvider()),
+      ],
       child: MaterialApp(
         title: 'Daily Reading Register',
         theme: ThemeData(
