@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:external_app_launcher/external_app_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -17,25 +20,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthProvider>().loadCurrentUser();
-      context.read<DailyProvider>().fetchDailyImages();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = context.read<AuthProvider>();
+      final dailyProvider = context.read<DailyProvider>();
+      await authProvider.loadCurrentUser();
+      await dailyProvider.fetchDailyImages();
     });
-  }
-
-  String _convertDriveLink(String url) {
-    if (url.contains('drive.google.com') && url.contains('/view')) {
-      final idMatch = RegExp(r'/d/([^/]+)/').firstMatch(url);
-      if (idMatch != null) {
-        final id = idMatch.group(1);
-        return 'https://drive.google.com/uc?export=view&id=$id';
-      }
-    }
-    return url;
   }
 
   @override
@@ -101,28 +95,52 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Expanded(
-                          child: Column(
-                            spacing: 15,
-                            children: [
-                              Image.asset('assets/img/vachanamrut.png', width: 150),
-                              Text(
-                                'Vachanamrut',
-                                style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
-                              ),
-                            ],
+                          child: GestureDetector(
+                            onTap: () async {
+                              if (Platform.isAndroid || Platform.isIOS) {
+                                await LaunchApp.openApp(
+                                  androidPackageName: 'org.baps.vachanamrut',
+                                  iosUrlScheme: 'vachanamrut://',
+                                  appStoreLink: 'https://apps.apple.com/us/app/vachanamrut-study-app/id483161271',
+                                  openStore: true,
+                                );
+                              }
+                            },
+                            child: Column(
+                              spacing: 15,
+                              children: [
+                                Image.asset('assets/img/vachanamrut.png', width: 150),
+                                Text(
+                                  'Vachanamrut',
+                                  style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
 
                         Expanded(
-                          child: Column(
-                            spacing: 15,
-                            children: [
-                              Image.asset('assets/img/swani_vatoo.png', width: 150),
-                              Text(
-                                'Swamini Vato',
-                                style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
-                              ),
-                            ],
+                          child: GestureDetector(
+                            onTap: () async {
+                              if (Platform.isAndroid || Platform.isIOS) {
+                                await LaunchApp.openApp(
+                                  androidPackageName: 'org.baps.swaminivatostudy',
+                                  iosUrlScheme: 'swaminivato://',
+                                  appStoreLink: 'https://apps.apple.com/us/app/swamini-vato-study/id1334812674',
+                                  openStore: true,
+                                );
+                              }
+                            },
+                            child: Column(
+                              spacing: 15,
+                              children: [
+                                Image.asset('assets/img/swani_vatoo.png', width: 150),
+                                Text(
+                                  'Swamini Vato',
+                                  style: GoogleFonts.afacad(fontSize: 22, fontWeight: FontWeight.bold, color: CustomColor.textColor),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -135,31 +153,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                         if (provider.dailyImages.isNotEmpty) {
                           return Container(
-                            constraints: BoxConstraints(maxHeight: 203),
+                            constraints: BoxConstraints(maxHeight: 300),
                             margin: const EdgeInsets.symmetric(vertical: 20.0),
-                            child: PageView.builder(
-                              controller: PageController(viewportFraction: 0.9),
+                            child: CarouselSlider.builder(
                               itemCount: provider.dailyImages.length,
-                              itemBuilder: (context, index) {
-                                final imageUrl = _convertDriveLink(provider.dailyImages[index]);
+                              options: CarouselOptions(
+                                height: 200,
+                                viewportFraction: 0.9,
+                                enableInfiniteScroll: true,
+                                autoPlay: true,
+                                enlargeCenterPage: true,
+                              ),
+                              itemBuilder: (context, index, realIndex) {
+                                final imageUrl = provider.dailyImages[index];
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
-                                    child: Image.network(
-                                      imageUrl,
+                                    child: Image.file(
+                                      File(imageUrl),
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
-                                      loadingBuilder: (context, child, loadingProgress) {
-                                        if (loadingProgress == null) return child;
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress.expectedTotalBytes != null
-                                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                : null,
-                                          ),
-                                        );
-                                      },
                                     ),
                                   ),
                                 );

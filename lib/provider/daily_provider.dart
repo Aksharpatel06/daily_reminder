@@ -18,10 +18,12 @@ class DailyProvider extends ChangeNotifier {
 
     try {
       final images = await DatabaseService().getDailyImages();
-      for (final image in images) {
-        final file = await downloadImage(image);
-        _dailyImages.add(file.path);
-      }
+      _dailyImages.clear(); // Clear existing images
+
+      final downloadFutures = images.map((image) => downloadImage(image));
+      final files = await Future.wait(downloadFutures);
+
+      _dailyImages = files.map((file) => file.path).toList();
     } catch (e) {
       debugPrint('Error fetching daily images: $e');
     } finally {
@@ -31,8 +33,27 @@ class DailyProvider extends ChangeNotifier {
   }
 
   Future<File> downloadImage(String url) async {
-    final response = await http.get(Uri.parse(url));
-    final dir = await getApplicationDocumentsDirectory();
+    debugPrint('Downloading image from $url');
+
+    // Convert Google Drive viewer URL to direct download URL
+    String downloadUrl = url;
+    if (url.contains('drive.google.com')) {
+      final idRegExp = RegExp(r'/file/d/([a-zA-Z0-9_-]+)/');
+      final match = idRegExp.firstMatch(url);
+      if (match != null && match.groupCount >= 1) {
+        final id = match.group(1);
+        downloadUrl = 'https://drive.google.com/uc?export=download&id=$id';
+        debugPrint('Converted to direct link: $downloadUrl');
+      }
+    }
+
+    final response = await http.get(Uri.parse(downloadUrl));
+
+    if (response.statusCode != 200) {
+      throw HttpException('Failed to download image: ${response.statusCode}');
+    }
+
+    final dir = await getApplicationCacheDirectory();
     final file = File('${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
     return file.writeAsBytes(response.bodyBytes);
   }
