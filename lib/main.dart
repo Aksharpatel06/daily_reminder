@@ -11,7 +11,6 @@ import 'screens/home_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'services/auth_services.dart';
 import 'services/notification_service.dart';
-import 'services/app_pref.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -22,7 +21,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await AppPref.appPref.init();
+
   await NotificationService.notificationService.initNotification();
   // NotificationService.notificationService.getDeviceToken();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
