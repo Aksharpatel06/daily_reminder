@@ -22,17 +22,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.black, // status bar background
-      statusBarIconBrightness: Brightness.light, // Android icons → white
-      statusBarBrightness: Brightness.dark, // iOS icons → white
-    ),
-  );
-
   await AppPref.appPref.init();
   await NotificationService.notificationService.initNotification();
-  NotificationService.notificationService.getDeviceToken();
+  // NotificationService.notificationService.getDeviceToken();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
 }

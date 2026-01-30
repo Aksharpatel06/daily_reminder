@@ -103,8 +103,8 @@ class NotificationService {
     );
   }
 
-  void getDeviceToken() async {
-    String? token = await _firebaseMessaging.getToken();
-    print('Device Token: $token');
-  }
+  // void getDeviceToken() async {
+  //   String? token = await _firebaseMessaging.getToken();
+  //   print('Device Token: $token');
+  // }
 }
