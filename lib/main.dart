@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:animations/animations.dart';
 import 'package:provider/provider.dart';
+
 import 'firebase_options.dart';
 import 'provider/auth_provider.dart';
 import 'provider/daily_provider.dart';
@@ -12,22 +12,32 @@ import 'screens/sign_in_screen.dart';
 import 'services/auth_services.dart';
 import 'services/notification_service.dart';
 
+// 🔔 ONLY import messaging for NON-WEB
+// ignore: avoid_web_libraries_in_flutter
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await AppPref.appPref.init();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  await NotificationService.notificationService.initNotification();
-  // NotificationService.notificationService.getDeviceToken();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // ✅ ONLY run notifications on MOBILE
+  if (!kIsWeb) {
+    await NotificationService.notificationService.initNotification();
+    FirebaseMessaging.onBackgroundMessage(
+      _firebaseMessagingBackgroundHandler,
+    );
+  }
+
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
