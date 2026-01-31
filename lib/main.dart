@@ -11,6 +11,7 @@ import 'screens/home_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'services/auth_services.dart';
 import 'services/notification_service.dart';
+import 'services/app_pref.dart';
 
 // 🔔 ONLY import messaging for NON-WEB
 // ignore: avoid_web_libraries_in_flutter
